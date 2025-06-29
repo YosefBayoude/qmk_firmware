@@ -242,6 +242,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
       };
       rgb_matrix_set_color_list(list, ARRAY_SIZE(list), EXPAND_RGB(_RGB_CYAN));
     } break;
+
     case _NAVIGATION: {
       {
         uint8_t list[] =
@@ -264,6 +265,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
             EXPAND_RGB(_RGB_GREEN)
         );
       }
+    } break;
+
+    case _GAMING: {
+      uint8_t list[] = {11, 17, 18, 19};
+      rgb_matrix_set_color_list(list, ARRAY_SIZE(list), EXPAND_RGB(_RGB_GREEN));
     } break;
 
     default:
@@ -373,23 +379,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                           _______ , _______ , _______ , _______ , _______ , _______
 ),
 
-//    ┌─────┬──────┬───┬───┬─────┬─────┐                       ┌─────┬─────┬───┬───┬───┬───┐
-//    │     │  c   │ 1 │ 2 │  3  │  4  │                       │  5  │  6  │ 7 │ 8 │ 9 │ 0 │
-//    ├─────┼──────┼───┼───┼─────┼─────┤                       ├─────┼─────┼───┼───┼───┼───┤
-//    │     │ tab  │ q │ w │  e  │  r  │                       │  t  │  y  │ u │ i │ o │ p │
-//    ├─────┼──────┼───┼───┼─────┼─────┤                       ├─────┼─────┼───┼───┼───┼───┤
-//    │     │ esc  │ a │ s │  d  │  f  │                       │  g  │  h  │ j │ k │ l │ m │
-//    ├─────┼──────┼───┼───┼─────┼─────┼─────────────┬─────────┼─────┼─────┼───┼───┼───┼───┤
-//    │     │ lsft │ z │ x │  c  │  v  │ TG(_GAMING) │ QK_BOOT │  b  │  n  │ / │ , │ . │ = │
-//    └─────┴──────┴───┴───┼─────┼─────┼─────────────┼─────────┼─────┼─────┼───┴───┴───┴───┘
-//                         │     │ del │    bspc     │  lsft   │ ent │ spc │
-//                         └─────┴─────┴─────────────┴─────────┴─────┴─────┘
+//    ┌──────┬──────┬───┬───┬──────┬─────┐                       ┌─────┬─────┬───┬───┬───┬───┐
+//    │      │  `   │ 1 │ 2 │  3   │  4  │                       │  5  │  6  │ 7 │ 8 │ 9 │ 0 │
+//    ├──────┼──────┼───┼───┼──────┼─────┤                       ├─────┼─────┼───┼───┼───┼───┤
+//    │ tab  │ tab  │ q │ w │  e   │  r  │                       │  t  │  y  │ u │ i │ o │ p │
+//    ├──────┼──────┼───┼───┼──────┼─────┤                       ├─────┼─────┼───┼───┼───┼───┤
+//    │ esc  │ esc  │ a │ s │  d   │  f  │                       │  g  │  h  │ j │ k │ l │ m │
+//    ├──────┼──────┼───┼───┼──────┼─────┼─────────────┬─────────┼─────┼─────┼───┼───┼───┼───┤
+//    │ lsft │ lsft │ z │ x │  c   │  v  │ TG(_GAMING) │ QK_BOOT │  b  │  n  │ / │ , │ . │ = │
+//    └──────┴──────┴───┴───┼──────┼─────┼─────────────┼─────────┼─────┼─────┼───┴───┴───┴───┘
+//                          │ lalt │ spc │    bspc     │  lsft   │ ent │ spc │
+//                          └──────┴─────┴─────────────┴─────────┴─────┴─────┘
 [_GAMING] = LAYOUT(
-  _______ , KC_C    , KC_1 , KC_2 , KC_3    , KC_4   ,                         KC_5   , KC_6   , KC_7    , KC_8    , KC_9   , KC_0  ,
-  _______ , KC_TAB  , KC_Q , KC_W , KC_E    , KC_R   ,                         KC_T   , KC_Y   , KC_U    , KC_I    , KC_O   , KC_P  ,
-  _______ , KC_ESC  , KC_A , KC_S , KC_D    , KC_F   ,                         KC_G   , KC_H   , KC_J    , KC_K    , KC_L   , KC_M  ,
-  _______ , KC_LSFT , KC_Z , KC_X , KC_C    , KC_V   , TG(_GAMING) , QK_BOOT , KC_B   , KC_N   , KC_SLSH , KC_COMM , KC_DOT , KC_EQL,
-                                    _______ , KC_SPC , KC_BSPC     , KC_LSFT , KC_ENT , KC_SPC
+  _______ , KC_GRV  , KC_1 , KC_2 , KC_3    , KC_4   ,                         KC_5   , KC_6   , KC_7    , KC_8    , KC_9   , KC_0  ,
+  KC_TAB  , KC_TAB  , KC_Q , KC_W , KC_E    , KC_R   ,                         KC_T   , KC_Y   , KC_U    , KC_I    , KC_O   , KC_P  ,
+  KC_ESC  , KC_ESC  , KC_A , KC_S , KC_D    , KC_F   ,                         KC_G   , KC_H   , KC_J    , KC_K    , KC_L   , KC_M  ,
+  KC_MUTE , KC_LSFT , KC_Z , KC_X , KC_C    , KC_V   , TG(_GAMING) , QK_BOOT , KC_B   , KC_N   , KC_SLSH , KC_COMM , KC_DOT , KC_EQL,
+                                    KC_LALT , KC_SPC , KC_BSPC     , KC_LSFT , KC_ENT , KC_SPC
 ),
 
 //    ┌─────┬─────┬─────┬─────┬─────┬─────┐           ┌─────┬─────┬─────┬─────┬─────┬─────┐
