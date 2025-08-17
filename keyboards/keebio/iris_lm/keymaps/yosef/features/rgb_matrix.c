@@ -84,19 +84,21 @@ void rgb_matrix_set_color_iris_rev8(
     uint8_t g,
     uint8_t b
 ) {
+  RGB color = {.r = r, .g = g, .b = b};
+  color = limit_brightness_rgb(color);
   if (index < 0)
     return;
   // TODO : make split count configurable
   if (index <= 34) {
     if (!isLeftHand)
-      rgb_matrix_set_color_through_rpc(index, r, g, b);
+      rgb_matrix_set_color_through_rpc(index, color.r, color.g, color.b);
     else
-      rgb_matrix_set_color_native(index, r, g, b);
+      rgb_matrix_set_color_native(index, color.r, color.g, color.b);
   } else if (index > 34 && index <= 68) {
     if (isLeftHand)
-      rgb_matrix_set_color_through_rpc(index, r, g, b);
+      rgb_matrix_set_color_through_rpc(index, color.r, color.g, color.b);
     else
-      rgb_matrix_set_color_native(index, r, g, b);
+      rgb_matrix_set_color_native(index, color.r, color.g, color.b);
   }
 }
 
@@ -124,9 +126,7 @@ void rgb_matrix_set_color_native(
     uint8_t g,
     uint8_t b
 ) {
-  RGB color = {.r = r, .g = g, .b = b};
-  color = limit_brightness_rgb(color);
-  rgb_matrix_set_color(index, color.r, color.g, color.b);
+  rgb_matrix_set_color(index, r, g, b);
 }
 
 void rgb_matrix_set_color_all_iris_rev8(uint8_t r, uint8_t g, uint8_t b) {
@@ -135,7 +135,8 @@ void rgb_matrix_set_color_all_iris_rev8(uint8_t r, uint8_t g, uint8_t b) {
   rgb_matrix_set_color_all(color.r, color.g, color.b);
   if (!is_keyboard_master())
     return;
-  SET_RGB_ALL_SYNC_data set_rgb_all_sync_data_local = {r, g, b};
+  SET_RGB_ALL_SYNC_data set_rgb_all_sync_data_local =
+      {color.r, color.g, color.b};
   transaction_rpc_send(
       SET_RGB_ALL_SYNC,
       sizeof(set_rgb_all_sync_data_local),
