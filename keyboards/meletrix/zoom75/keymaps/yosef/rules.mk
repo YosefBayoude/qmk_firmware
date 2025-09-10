@@ -2,8 +2,8 @@ SRC += features/achordion.c
 
 CAPS_WORD_ENABLE = yes
 
-CONSOLE_ENABLE = yes
+CONSOLE_ENABLE = no
 
 AUTOCORRECT_ENABLE = yes
 
-CONSOLE_ENABLE = yes
+DYNAMIC_MACRO_ENABLE = yes
