@@ -61,7 +61,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch (mod) {
     case MOD_LGUI:
     case MOD_RGUI:
-      return TAPPING_TERM + 200;
+      return TAPPING_TERM + 100;
     default:
       return TAPPING_TERM;
   }
