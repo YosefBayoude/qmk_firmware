@@ -310,15 +310,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //    ├───────────────┼───────────┼───────────┼───────────┼────────────────────────┼───────────────────────┤                         ├──────┼───────────────┼───────────┼───────────┼───────────┼─────────────┤
 //    │      esc      │ LCTL_T(a) │ LALT_T(s) │ LGUI_T(d) │       LSFT_T(f)        │           g           │                         │  h   │   RSFT_T(j)   │ RGUI_T(k) │ RALT_T(l) │ RCTL_T(m) │      ;      │
 //    ├───────────────┼───────────┼───────────┼───────────┼────────────────────────┼───────────────────────┼───────────────┬─────────┼──────┼───────────────┼───────────┼───────────┼───────────┼─────────────┤
-//    │ OSM(MOD_LSFT) │     z     │     x     │     c     │           v            │           b           │  TG(_GAMING)  │ HYPR(r) │  n   │       /       │     ,     │     .     │     =     │     f13     │
+//    │ OSM(MOD_LSFT) │     z     │     x     │ LCAG_T(c) │           v            │           b           │  TG(_GAMING)  │ HYPR(r) │  n   │       /       │ RCAG_T(,) │     .     │     =     │     f13     │
 //    └───────────────┴───────────┴───────────┴───────────┼────────────────────────┼───────────────────────┼───────────────┼─────────┼──────┼───────────────┼───────────┴───────────┴───────────┴─────────────┘
 //                                                        │ LT(_NUMBERS, DEL_WORD) │ LT(_NAVIGATION, bspc) │ OSM(MOD_LSFT) │   ent   │ spc  │ OSL(_SYMBOLS) │
 //                                                        └────────────────────────┴───────────────────────┴───────────────┴─────────┴──────┴───────────────┘
 [_BASE] = LAYOUT(
-  A(KC_C)       , A(KC_1)      , A(KC_2)      , A(KC_3)      , A(KC_4)                , A(KC_5)                  ,                              A(KC_6) , A(KC_7)       , A(KC_8)      , A(KC_9)      , A(KC_0)      , KC_SYSTEM_WAKE,
-  KC_TAB        , KC_Q         , KC_W         , KC_E         , KC_R                   , KC_T                     ,                              KC_Y    , KC_U          , KC_I         , KC_O         , KC_P         , KC_COLN       ,
-  KC_ESC        , LCTL_T(KC_A) , LALT_T(KC_S) , LGUI_T(KC_D) , LSFT_T(KC_F)           , KC_G                     ,                              KC_H    , RSFT_T(KC_J)  , RGUI_T(KC_K) , RALT_T(KC_L) , RCTL_T(KC_M) , KC_SCLN       ,
-  OSM(MOD_LSFT) , KC_Z         , KC_X         , KC_C         , KC_V                   , KC_B                     , TG(_GAMING)   , HYPR(KC_R) , KC_N    , KC_SLSH       , KC_COMM      , KC_DOT       , KC_EQL       , KC_F13        ,
+  A(KC_C)       , A(KC_1)      , A(KC_2)      , A(KC_3)      , A(KC_4)                , A(KC_5)                  ,                              A(KC_6) , A(KC_7)       , A(KC_8)         , A(KC_9)      , A(KC_0)      , KC_SYSTEM_WAKE,
+  KC_TAB        , KC_Q         , KC_W         , KC_E         , KC_R                   , KC_T                     ,                              KC_Y    , KC_U          , KC_I            , KC_O         , KC_P         , KC_COLN       ,
+  KC_ESC        , LCTL_T(KC_A) , LALT_T(KC_S) , LGUI_T(KC_D) , LSFT_T(KC_F)           , KC_G                     ,                              KC_H    , RSFT_T(KC_J)  , RGUI_T(KC_K)    , RALT_T(KC_L) , RCTL_T(KC_M) , KC_SCLN       ,
+  OSM(MOD_LSFT) , KC_Z         , KC_X         , LCAG_T(KC_C) , KC_V                   , KC_B                     , TG(_GAMING)   , HYPR(KC_R) , KC_N    , KC_SLSH       , RCAG_T(KC_COMM) , KC_DOT       , KC_EQL       , KC_F13        ,
                                                                LT(_NUMBERS, DEL_WORD) , LT(_NAVIGATION, KC_BSPC) , OSM(MOD_LSFT) , KC_ENT     , KC_SPC  , OSL(_SYMBOLS)
 ),
 
