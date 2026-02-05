@@ -25,9 +25,10 @@
 // https://docs.qmk.fm/features/caps_word
 #define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
 
-// start layers at a higher number, this is so that QK_LAYER_TAP_GET_LAYER can work,
-// starting high avoids clashes layer values may have with other mods / keycodes may use
-// example : QK_LAYER_TAP_GET_LAYER(RCTL_T(m)) returns 1
+// WARNING: QK_LAYER_TAP_GET_LAYER only works correctly on layer-tap keys.
+// When used on mod-taps, it returns the modifier bits instead of a layer number.
+// Always guard with IS_QK_LAYER_TAP(keycode) before calling QK_LAYER_TAP_GET_LAYER.
+// Example: QK_LAYER_TAP_GET_LAYER(RCTL_T(KC_M)) returns 1 (LCTL bit), not a layer.
 #define _BASE 0
 #define _NAV 12
 #define _NBR 13

@@ -78,6 +78,9 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
 
 // consider this a hold if any other key pressed while this one is not yet released
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+  if (!IS_QK_LAYER_TAP(keycode)) {
+    return false;
+  }
   uint8_t layer = QK_LAYER_TAP_GET_LAYER(keycode);
   switch (layer) {
     case _NAV:
@@ -90,6 +93,9 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 
 // time before a double press is considered as tap function
 uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+  if (!IS_QK_LAYER_TAP(keycode)) {
+    return QUICK_TAP_TERM;
+  }
   uint8_t layer = QK_LAYER_TAP_GET_LAYER(keycode);
   switch (layer) {
     case _NAV:
@@ -273,17 +279,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //    ├───────────────┼───────────┼────────────────┼───────────┼───────────┼────────────────┼──────┼───────────┼───────────┼───────────┼───────────┼─────┼───────────────┼──────────┘      ├──────┤
 //    │      esc      │     a     │   LALT_T(s)    │ LCTL_T(d) │ LSFT_T(f) │       g        │  h   │ RSFT_T(j) │ RCTL_T(k) │ RALT_T(l) │ RGUI_T(m) │  ;  │      ent      │                 │ pgdn │
 //    ├───────────────┼───────────┼────────────────┼───────────┼───────────┼────────────────┼──────┼───────────┼───────────┼───────────┼───────────┼─────┼───────────────┼──────────┐      └──────┘
-//    │ OSM(MOD_LSFT) │     z     │       x        │     c     │     v     │       b        │      │     n     │     /     │     ,     │     .     │  =  │ OSM(MOD_LSFT) │    up    │
+//    │ OSM(MOD_LSFT) │     z     │       x        │ LCAG_T(c) │     v     │       b        │      │     n     │     /     │ RCAG_T(,) │     .     │  =  │ OSM(MOD_LSFT) │    up    │
 //    ├───────────────┼───────────┼────────────────┼───────────┴───────────┼────────────────┼──────┼───────────┼───────────┼───────────┼───────────┼─────┼───────────────┼──────────┼──────┐
 //    │     C(c)      │   C(v)    │ LT(_NBR, PB_1) │                       │ LT(_NAV, bspc) │ ent  │    spc    │           │ OSL(_SBL) │ MO(_NAV)  │     │     left      │   down   │ rght │
 //    └───────────────┴───────────┴────────────────┘                       └────────────────┴──────┴───────────┘           └───────────┴───────────┘     └───────────────┴──────────┴──────┘
 [_BASE] = LAYOUT(
-  KC_ESC        , KC_F1        , KC_F2          , KC_F3        , KC_F4        , KC_F5             , KC_F6   , KC_F7        , KC_F8        , KC_F9        , KC_F10       , KC_F11  , KC_F12        , TG(_DFT) , G(KC_L)           ,
-  A(KC_GRV)     , A(KC_1)      , A(KC_2)        , A(KC_3)      , A(KC_4)      , A(KC_5)           , A(KC_6) , A(KC_7)      , A(KC_8)      , A(KC_9)      , KC_0         , KC_MINS , KC_EQL        , KC_BSPC  , KC_BSPC  , KC_DEL ,
-  KC_TAB        , LGUI_T(KC_Q) , KC_W           , KC_E         , KC_R         , KC_T              , KC_Y    , KC_U         , KC_I         , KC_O         , KC_P         , KC_COLN , KC_RBRC       , KC_BSLS  ,            KC_PGUP,
-  KC_ESC        , KC_A         , LALT_T(KC_S)   , LCTL_T(KC_D) , LSFT_T(KC_F) , KC_G              , KC_H    , RSFT_T(KC_J) , RCTL_T(KC_K) , RALT_T(KC_L) , RGUI_T(KC_M) , KC_SCLN , KC_ENT        ,                       KC_PGDN,
-  OSM(MOD_LSFT) , KC_Z         , KC_X           , KC_C         , KC_V         , KC_B              , _______ , KC_N         , KC_SLSH      , KC_COMM      , KC_DOT       , KC_EQL  , OSM(MOD_LSFT) , KC_UP                        ,
-  C(KC_C)       , C(KC_V)      , LT(_NBR, PB_1) ,                               LT(_NAV, KC_BSPC) , KC_ENT  , KC_SPC       ,                OSL(_SBL)    , MO(_NAV)     ,           KC_LEFT       , KC_DOWN  , KC_RIGHT
+  KC_ESC        , KC_F1        , KC_F2          , KC_F3        , KC_F4        , KC_F5             , KC_F6   , KC_F7        , KC_F8        , KC_F9           , KC_F10       , KC_F11  , KC_F12        , TG(_DFT) , G(KC_L)           ,
+  A(KC_GRV)     , A(KC_1)      , A(KC_2)        , A(KC_3)      , A(KC_4)      , A(KC_5)           , A(KC_6) , A(KC_7)      , A(KC_8)      , A(KC_9)         , KC_0         , KC_MINS , KC_EQL        , KC_BSPC  , KC_BSPC  , KC_DEL ,
+  KC_TAB        , LGUI_T(KC_Q) , KC_W           , KC_E         , KC_R         , KC_T              , KC_Y    , KC_U         , KC_I         , KC_O            , KC_P         , KC_COLN , KC_RBRC       , KC_BSLS  ,            KC_PGUP,
+  KC_ESC        , KC_A         , LALT_T(KC_S)   , LCTL_T(KC_D) , LSFT_T(KC_F) , KC_G              , KC_H    , RSFT_T(KC_J) , RCTL_T(KC_K) , RALT_T(KC_L)    , RGUI_T(KC_M) , KC_SCLN , KC_ENT        ,                       KC_PGDN,
+  OSM(MOD_LSFT) , KC_Z         , KC_X           , LCAG_T(KC_C) , KC_V         , KC_B              , _______ , KC_N         , KC_SLSH      , RCAG_T(KC_COMM) , KC_DOT       , KC_EQL  , OSM(MOD_LSFT) , KC_UP                        ,
+  C(KC_C)       , C(KC_V)      , LT(_NBR, PB_1) ,                               LT(_NAV, KC_BSPC) , KC_ENT  , KC_SPC       ,                OSL(_SBL)       , MO(_NAV)     ,           KC_LEFT       , KC_DOWN  , KC_RIGHT
 ),
 
 //    ┌─────┬─────────┬─────────┬──────┬──────┬─────────┬─────────┬─────────┬──────┬─────────┬─────┬────────┬─────────┬─────┬─────┐
