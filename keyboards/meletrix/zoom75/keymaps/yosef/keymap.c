@@ -8,10 +8,21 @@ enum custom_keycodes {
   DEL_WORD = SAFE_RANGE,
 };
 
+static bool lcag_c_pending = false;
+static bool lcag_c_held = false;   // held as LCAG mod
+static bool lcag_c_as_c = false;   // held as plain KC_C
+static uint16_t lcag_c_timer = 0;
+
 void matrix_scan_user(void) {
 #ifdef ACHORDION_ENABLE
   achordion_task();
 #endif // ACHORDION_ENABLE
+  // Resolve LCAG_T(KC_C) as hold after tapping term
+  if (lcag_c_pending && timer_elapsed(lcag_c_timer) > TAPPING_TERM) {
+    lcag_c_pending = false;
+    lcag_c_held = true;
+    register_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
+  }
 }
 
 uint16_t previous_keycode = -1;
@@ -30,6 +41,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         record->tap.interrupted,
         record->tap.count
     );
+  }
+  // Handle LCAG_T(KC_C) manually to send c+space simultaneously
+  if (keycode == LCAG_T(KC_C)) {
+    if (record->event.pressed) {
+      lcag_c_pending = true;
+      lcag_c_held = false;
+      lcag_c_timer = timer_read();
+    } else {
+      if (lcag_c_pending) {
+        tap_code(KC_C);
+        lcag_c_pending = false;
+      } else if (lcag_c_as_c) {
+        unregister_code(KC_C);
+        lcag_c_as_c = false;
+      } else if (lcag_c_held) {
+        unregister_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
+        lcag_c_held = false;
+      }
+    }
+    return false;
+  }
+  if (lcag_c_pending && record->event.pressed) {
+    lcag_c_pending = false;
+    if (keycode == KC_SPC) {
+      lcag_c_as_c = true;
+      register_code(KC_C);
+      return true; // let space pass through normally
+    } else {
+      lcag_c_held = true;
+      register_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
+    }
   }
 #ifdef ACHORDION_ENABLE
   if (!process_achordion(keycode, record)) {
