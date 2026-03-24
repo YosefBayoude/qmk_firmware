@@ -8,21 +8,10 @@ enum custom_keycodes {
   DEL_WORD = SAFE_RANGE,
 };
 
-static bool lcag_c_pending = false;
-static bool lcag_c_held = false;   // held as LCAG mod
-static bool lcag_c_as_c = false;   // held as plain KC_C
-static uint16_t lcag_c_timer = 0;
-
 void matrix_scan_user(void) {
 #ifdef ACHORDION_ENABLE
   achordion_task();
 #endif // ACHORDION_ENABLE
-  // Resolve LCAG_T(KC_C) as hold after tapping term
-  if (lcag_c_pending && timer_elapsed(lcag_c_timer) > TAPPING_TERM) {
-    lcag_c_pending = false;
-    lcag_c_held = true;
-    register_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
-  }
 }
 
 uint16_t previous_keycode = -1;
@@ -41,37 +30,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         record->tap.interrupted,
         record->tap.count
     );
-  }
-  // Handle LCAG_T(KC_C) manually to send c+space simultaneously
-  if (keycode == LCAG_T(KC_C)) {
-    if (record->event.pressed) {
-      lcag_c_pending = true;
-      lcag_c_held = false;
-      lcag_c_timer = timer_read();
-    } else {
-      if (lcag_c_pending) {
-        tap_code(KC_C);
-        lcag_c_pending = false;
-      } else if (lcag_c_as_c) {
-        unregister_code(KC_C);
-        lcag_c_as_c = false;
-      } else if (lcag_c_held) {
-        unregister_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
-        lcag_c_held = false;
-      }
-    }
-    return false;
-  }
-  if (lcag_c_pending && record->event.pressed) {
-    lcag_c_pending = false;
-    if (keycode == KC_SPC) {
-      lcag_c_as_c = true;
-      register_code(KC_C);
-      return true; // let space pass through normally
-    } else {
-      lcag_c_held = true;
-      register_mods(MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LGUI));
-    }
   }
 #ifdef ACHORDION_ENABLE
   if (!process_achordion(keycode, record)) {
@@ -252,6 +210,11 @@ bool achordion_chord(
     return true; // Disable streak detection on layer-tap keys.
   }
 
+  // LCAG_T(KC_C) + space: settle as tap but hold the tap key
+  if (tap_hold_keycode == LCAG_T(KC_C) && other_keycode == KC_SPC) {
+    return false;
+  }
+
   int r = sizeof(exclude_from_left) / sizeof(exclude_from_left[0]);
   int l = sizeof(exclude_from_right) / sizeof(exclude_from_right[0]);
   switch (mod_config(QK_MOD_TAP_GET_MODS(tap_hold_keycode))) {
@@ -291,6 +254,18 @@ bool achordion_eager_mod(uint8_t mod) {
       return false;
   }
 }
+
+bool achordion_hold_on_tap(
+    uint16_t tap_hold_keycode,
+    uint16_t other_keycode
+) {
+  // When LCAG_T(KC_C) settles as tap due to space, hold C instead of tapping
+  if (tap_hold_keycode == LCAG_T(KC_C) && other_keycode == KC_SPC) {
+    return true;
+  }
+  return false;
+}
+
 #ifdef ACHORDION_STREAK
 uint16_t achordion_streak_chord_timeout(
     uint16_t tap_hold_keycode,

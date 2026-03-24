@@ -150,6 +150,21 @@ uint16_t achordion_timeout(uint16_t tap_hold_keycode);
 bool achordion_eager_mod(uint8_t mod);
 
 /**
+ * Optional callback to hold the tap key instead of tapping it.
+ *
+ * When `achordion_chord()` returns false (settling as tap), this callback is
+ * consulted. If it returns true, the tap key is held down (press only) instead
+ * of being tapped (press + release). The tap key is then released when the
+ * physical tap-hold key is released. This enables natural key overlap, e.g.
+ * holding C while pressing and releasing Space.
+ *
+ * @param tap_hold_keycode Keycode of the tap-hold key.
+ * @param other_keycode Keycode of the other key.
+ * @return True to hold the tap key, false to tap it normally.
+ */
+bool achordion_hold_on_tap(uint16_t tap_hold_keycode, uint16_t other_keycode);
+
+/**
  * Returns true if the args come from keys on opposite hands.
  *
  * @param tap_hold_record keyrecord_t from the tap-hold key's event.
