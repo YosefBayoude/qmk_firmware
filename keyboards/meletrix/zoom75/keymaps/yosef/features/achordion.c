@@ -32,6 +32,8 @@ enum {
   STATE_RELEASED,
   // Active tap-hold key has been settled as tapped.
   STATE_TAPPING,
+  // Active tap-hold key is pressed as its tap key until physically released.
+  STATE_OVERLAPPING_TAP,
   // Active tap-hold key has been settled as held.
   STATE_HOLDING,
   // This state is set while calling `process_record()`, which will recursively
@@ -79,6 +81,22 @@ static void recursively_process_record(keyrecord_t *record, uint8_t state) {
   achordion_state = state;
 }
 
+// Clears eagerly applied modifiers before resolving a mod-tap as a tap.
+static void clear_eager_mods(void) {
+  if (eager_mods) {
+#if defined(RETRO_TAPPING) || defined(RETRO_TAPPING_PER_KEY)
+#ifdef DUMMY_MOD_NEUTRALIZER_KEYCODE
+    neutralize_flashing_modifiers(get_mods());
+#endif // DUMMY_MOD_NEUTRALIZER_KEYCODE
+#endif // defined(RETRO_TAPPING) || defined(RETRO_TAPPING_PER_KEY)
+    tap_hold_record.event.pressed = false;
+    action_t action;
+    action.code = ACTION_MODS(eager_mods);
+    process_action(&tap_hold_record, action);
+    eager_mods = 0;
+  }
+}
+
 // Sends hold press event and settles the active tap-hold key as held.
 static void settle_as_hold(void) {
   if (eager_mods) {
@@ -95,20 +113,7 @@ static void settle_as_hold(void) {
 
 // Sends tap press and release and settles the active tap-hold key as tapped.
 static void settle_as_tap(void) {
-  if (eager_mods) { // Clear eager mods if set.
-#if defined(RETRO_TAPPING) || defined(RETRO_TAPPING_PER_KEY)
-#ifdef DUMMY_MOD_NEUTRALIZER_KEYCODE
-    neutralize_flashing_modifiers(get_mods());
-#endif // DUMMY_MOD_NEUTRALIZER_KEYCODE
-#endif // defined(RETRO_TAPPING) || defined(RETRO_TAPPING_PER_KEY)
-    tap_hold_record.event.pressed = false;
-    // To avoid falsely triggering Retro Tapping, process eager mods release as
-    // a regular mods release rather than a mod-tap release.
-    action_t action;
-    action.code = ACTION_MODS(eager_mods);
-    process_action(&tap_hold_record, action);
-    eager_mods = 0;
-  }
+  clear_eager_mods();
 
   dprintln("Achordion: Plumbing tap press.");
   tap_hold_record.event.pressed = true;
@@ -126,6 +131,20 @@ static void settle_as_tap(void) {
   tap_hold_record.event.pressed = false;
   // Plumb tap release event.
   recursively_process_record(&tap_hold_record, STATE_TAPPING);
+}
+
+// Sends the tap key press now and defers its release until the physical key is
+// released. This preserves overlapping sequences like E down, Space down,
+// Space up, E up.
+static void settle_as_overlapping_tap(void) {
+  clear_eager_mods();
+
+  dprintln("Achordion: Plumbing overlapping tap press.");
+  tap_hold_record.event.pressed = true;
+  tap_hold_record.tap.count = 1;
+  tap_hold_record.tap.interrupted = true;
+  recursively_process_record(&tap_hold_record, STATE_OVERLAPPING_TAP);
+  send_keyboard_report();
 }
 
 bool process_achordion(uint16_t keycode, keyrecord_t *record) {
@@ -199,6 +218,10 @@ bool process_achordion(uint16_t keycode, keyrecord_t *record) {
       tap_hold_record.event.pressed = false;
       // Plumb hold release event.
       recursively_process_record(&tap_hold_record, STATE_RELEASED);
+    } else if (achordion_state == STATE_OVERLAPPING_TAP) {
+      dprintln("Achordion: Key released. Plumbing overlapping tap release.");
+      tap_hold_record.event.pressed = false;
+      recursively_process_record(&tap_hold_record, STATE_RELEASED);
     } else if (!pressed_another_key_before_release) {
       // No other key was pressed between the press and release of the tap-hold
       // key, plumb a hold press and then a release.
@@ -236,10 +259,23 @@ bool process_achordion(uint16_t keycode, keyrecord_t *record) {
     // events back into the handling pipeline so that QMK features and other
     // user code can see them. This is done by calling `process_record()`, which
     // in turn calls most handlers including `process_record_user()`.
-    if (!is_streak &&
-        (!is_key_event || (is_tap_hold && record->tap.count == 0) ||
-         achordion_chord(tap_hold_keycode, &tap_hold_record, keycode, record)
-        )) {
+    const bool overlap_tap =
+        is_key_event && achordion_overlap_tap(
+                            tap_hold_keycode,
+                            &tap_hold_record,
+                            keycode,
+                            record
+                        );
+    if (overlap_tap) {
+      settle_as_overlapping_tap();
+    } else if (!is_streak &&
+               (!is_key_event || (is_tap_hold && record->tap.count == 0) ||
+                achordion_chord(
+                    tap_hold_keycode,
+                    &tap_hold_record,
+                    keycode,
+                    record
+                ))) {
       settle_as_hold();
 
 #ifdef REPEAT_KEY_ENABLE
@@ -325,6 +361,15 @@ __attribute__((weak)) bool achordion_chord(
     keyrecord_t *other_record
 ) {
   return achordion_opposite_hands(tap_hold_record, other_record);
+}
+
+__attribute__((weak)) bool achordion_overlap_tap(
+    uint16_t tap_hold_keycode,
+    keyrecord_t *tap_hold_record,
+    uint16_t other_keycode,
+    keyrecord_t *other_record
+) {
+  return false;
 }
 
 // By default, the timeout is 1000 ms for all keys.

@@ -92,6 +92,11 @@ static bool is_mt_or_lt(uint16_t keycode) {
 __attribute__((weak)) bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     return false;
 }
+
+// Pair-aware extension. Existing keymaps retain their per-key policy.
+__attribute__((weak)) bool get_hold_on_other_key_press_pair(uint16_t keycode, keyrecord_t *record, uint16_t other_keycode, keyrecord_t *other_record) {
+    return get_hold_on_other_key_press(keycode, record);
+}
 #    endif
 
 #    if defined(AUTO_SHIFT_ENABLE) && defined(RETRO_SHIFT)
@@ -189,7 +194,7 @@ void action_tapping_process(keyrecord_t record) {
 #    endif
 
 #    ifdef HOLD_ON_OTHER_KEY_PRESS_PER_KEY
-#        define TAP_GET_HOLD_ON_OTHER_KEY_PRESS get_hold_on_other_key_press(tapping_keycode, &tapping_key)
+#        define TAP_GET_HOLD_ON_OTHER_KEY_PRESS get_hold_on_other_key_press_pair(tapping_keycode, &tapping_key, get_record_keycode(keyp, false), keyp)
 #    elif defined(HOLD_ON_OTHER_KEY_PRESS)
 #        define TAP_GET_HOLD_ON_OTHER_KEY_PRESS true
 #    else

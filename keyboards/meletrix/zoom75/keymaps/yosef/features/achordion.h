@@ -109,6 +109,16 @@ bool achordion_chord(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
                      uint16_t other_keycode, keyrecord_t* other_record);
 
 /**
+ * Optional callback for tap keys that must remain pressed while another key is
+ * pressed. Return true to send the tap key press immediately and defer its
+ * release until the physical tap-hold key is released.
+ */
+bool achordion_overlap_tap(uint16_t tap_hold_keycode,
+                           keyrecord_t* tap_hold_record,
+                           uint16_t other_keycode,
+                           keyrecord_t* other_record);
+
+/**
  * Optional callback to define a timeout duration per keycode.
  *
  * In your keymap.c, define the callback
