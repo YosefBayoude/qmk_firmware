@@ -28,6 +28,11 @@
 index.html
 firmware_list.json
 
+# Private autocorrect dictionaries and generated data, at any directory depth
+# Generated data includes dictionary contents. Never commit either file.
+autocorrect_dictionary.txt
+autocorrect_data.h
+
 # QMK-specific
 api_data/v1
 quantum/version.h
