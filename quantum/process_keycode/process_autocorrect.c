@@ -19,6 +19,16 @@
 #    include "autocorrect_data_default.h"
 #endif
 
+// The assembled correction can be much longer than the matched typo.
+// Include room for its retained prefix and null terminator.
+#ifndef AUTOCORRECT_CORRECTION_BUFFER_SIZE
+#    define AUTOCORRECT_CORRECTION_BUFFER_SIZE (AUTOCORRECT_MAX_LENGTH + 10)
+#endif
+
+#if AUTOCORRECT_CORRECTION_BUFFER_SIZE < 1
+#    error "AUTOCORRECT_CORRECTION_BUFFER_SIZE must include room for a null terminator."
+#endif
+
 static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {KC_SPC};
 static uint8_t typo_buffer_size                    = 1;
 
@@ -349,11 +359,22 @@ bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
              *
              * B) When correcting 'typo' -- Need extra offset for terminator
              */
-            char correct[AUTOCORRECT_MAX_LENGTH + 10] = {0}; // let's hope this is big enough
+            char correct[AUTOCORRECT_CORRECTION_BUFFER_SIZE] = {0};
 
             uint8_t offset = space_last ? backspaces : backspaces + 1;
-            strcpy(correct, typo);
-            strcpy_P(correct + typo_len - offset, changes);
+            if (offset > typo_len) {
+                return true;
+            }
+
+            size_t prefix_len = typo_len - offset;
+            // Treat oversized corrections as unmatched typos, leaving the typed
+            // text unchanged instead of overflowing the stack or truncating it.
+            if (prefix_len >= sizeof(correct) || strlen_P(changes) >= sizeof(correct) - prefix_len) {
+                return true;
+            }
+
+            memcpy(correct, typo, prefix_len);
+            strcpy_P(correct + prefix_len, changes);
 
             if (apply_autocorrect(backspaces, changes, typo, correct)) {
                 for (uint8_t i = 0; i < backspaces; ++i) {
